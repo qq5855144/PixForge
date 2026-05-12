@@ -31,39 +31,25 @@ jobs:
 
       - name: Generate placeholder icons (PWA & Android)
         run: |
-          # 创建 Android 启动图标 (ic_launcher.png)
           mkdir -p android/app/src/main/res/drawable
-          python3 -c "
-import struct, zlib
-
-def create_png(w, h, color):
-    def chunk(ctype, data):
-        c = ctype + data
-        return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c) & 0xffffffff)
-    raw = b''
-    for y in range(h):
-        raw += b'\x00' + bytes(color) * w
-    return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
-
-open('android/app/src/main/res/drawable/ic_launcher.png', 'wb').write(create_png(192, 192, (79, 70, 229)))
-"
-          # 创建 PWA 图标
           mkdir -p assets
-          python3 -c "
-import struct, zlib
-
-def create_png(w, h, color):
-    def chunk(ctype, data):
-        c = ctype + data
-        return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c) & 0xffffffff)
-    raw = b''
-    for y in range(h):
-        raw += b'\x00' + bytes(color) * w
-    return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
-
-open('assets/icon-192.png', 'wb').write(create_png(192, 192, (79, 70, 229)))
-open('assets/icon-512.png', 'wb').write(create_png(512, 512, (79, 70, 229)))
-"
+          cat > gen_icons.py << 'EOF'
+          import struct, zlib
+          
+          def create_png(w, h, color):
+              def chunk(ctype, data):
+                  c = ctype + data
+                  return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c) & 0xffffffff)
+              raw = b''
+              for y in range(h):
+                  raw += b'\x00' + bytes(color) * w
+              return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+          
+          open('android/app/src/main/res/drawable/ic_launcher.png', 'wb').write(create_png(192, 192, (79, 70, 229)))
+          open('assets/icon-192.png', 'wb').write(create_png(192, 192, (79, 70, 229)))
+          open('assets/icon-512.png', 'wb').write(create_png(512, 512, (79, 70, 229)))
+          EOF
+          python3 gen_icons.py
 
       - name: Copy web assets to Android assets
         run: |
