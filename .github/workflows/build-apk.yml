@@ -24,6 +24,15 @@ jobs:
           api-level: '34'
           build-tools: '34.0.0'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.2.2'
+
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper --distribution-type all
+        working-directory: android
+
       - name: Copy web assets to Android assets
         run: |
           mkdir -p android/app/src/main/assets
