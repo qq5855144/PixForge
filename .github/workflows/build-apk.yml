@@ -10,37 +10,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Set up Java
-        uses: actions/setup-java@v3
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Install Bubblewrap CLI
-        run: npm install -g @bubblewrap/cli
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: '34'
+          build-tools: '34.0.0'
 
-      - name: Initialize TWA project
+      - name: Copy web assets to Android assets
         run: |
-          bubblewrap init \
-            --manifest ./manifest.json \
-            --directory ./twa-project \
-            --skip-validation \
-            --yes
+          mkdir -p android/app/src/main/assets
+          cp -r index.html manifest.json assets/ android/app/src/main/assets/
 
-      - name: Build APK
-        run: |
-          cd twa-project
-          bubblewrap build
+      - name: Grant execute permission for gradlew
+        run: chmod +x android/gradlew
+
+      - name: Build debug APK
+        run: cd android && ./gradlew assembleDebug
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: ./twa-project/app-release-signed.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
