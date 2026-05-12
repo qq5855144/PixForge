@@ -24,11 +24,7 @@ jobs:
           api-level: '34'
           build-tools: '34.0.0'
 
-      - name: Install Gradle 8.2.1
-        run: |
-          wget -q https://services.gradle.org/distributions/gradle-8.2.1-bin.zip
-          unzip -q gradle-8.2.1-bin.zip -d /opt
-          echo "/opt/gradle-8.2.1/bin" >> $GITHUB_PATH
+
 
       - name: Generate placeholder icons (PWA & Android)
         run: |
