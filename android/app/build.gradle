@@ -1,3 +1,5 @@
+apply plugin: 'com.android.application'
+
 android {
     namespace 'com.pixforge.webview'
     compileSdk 34
