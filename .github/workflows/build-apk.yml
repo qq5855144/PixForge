@@ -39,17 +39,53 @@ jobs:
         cp -r assets android/app/src/main/assets/
         cp manifest.json android/app/src/main/assets/
 
+    - name: Install Pillow for icon generation
+      run: pip install Pillow
+
     - name: Generate launcher icon
       run: |
         python3 -c "
-        from PIL import Image
-        img = Image.new('RGBA', (96,96), color='#4f46e5')
-        from PIL import ImageDraw
-        draw = ImageDraw.Draw(img)
-        draw.text((20,20), 'Pix', fill='white')
+        from PIL import Image, ImageDraw, ImageFont
         import os
+        
+        # Create output directory
         os.makedirs('android/app/src/main/res/drawable', exist_ok=True)
-        img.save('android/app/src/main/res/drawable/ic_launcher.png')
+        
+        # Try to load PWA icon, otherwise generate placeholder
+        icon_path = None
+        if os.path.exists('assets/icon-512.png'):
+            icon_path = 'assets/icon-512.png'
+        elif os.path.exists('assets/icon-192.png'):
+            icon_path = 'assets/icon-192.png'
+        
+        if icon_path:
+            img = Image.open(icon_path).convert('RGBA')
+            img = img.resize((192, 192), Image.LANCZOS)
+            img.save('android/app/src/main/res/drawable/ic_launcher.png')
+            print(f'Used existing icon: {icon_path}')
+        else:
+            # Generate a clean icon with PixForge branding
+            size = 192
+            img = Image.new('RGBA', (size, size), color='#4f46e5')
+            draw = ImageDraw.Draw(img)
+            # Draw rounded rectangle as background
+            draw.rounded_rectangle([8, 8, size-8, size-8], radius=32, fill='#6366f1')
+            # Draw text
+            try:
+                font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 48)
+            except:
+                font = ImageFont.load_default()
+            bbox = draw.textbbox((0, 0), 'PF', font=font)
+            text_w = bbox[2] - bbox[0]
+            text_h = bbox[3] - bbox[1]
+            x = (size - text_w) / 2
+            y = (size - text_h) / 2 - 4
+            draw.text((x, y), 'PF', fill='white', font=font)
+            img.save('android/app/src/main/res/drawable/ic_launcher.png')
+            print('Generated new placeholder icon')
+        
+        # Also create adaptive icon (108dp)
+        os.makedirs('android/app/src/main/res/mipmap-anydpi-v26', exist_ok=True)
         "
 
     - name: Build APK
