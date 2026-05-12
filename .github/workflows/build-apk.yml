@@ -29,20 +29,37 @@ jobs:
         with:
           gradle-version: '8.2.2'
 
-      - name: Generate placeholder icons (if missing)
+      - name: Generate placeholder icons
         run: |
-          # 为 Android 生成启动图标
+          # Android 启动图标 (drawable)
           mkdir -p android/app/src/main/res/drawable
-          if [ ! -f android/app/src/main/res/drawable/ic_launcher.png ]; then
-            convert -size 48x48 xc:#4f46e5 android/app/src/main/res/drawable/ic_launcher.png
-          fi
-          # 为 PWA 生成清单图标
-          if [ ! -f assets/icon-192.png ]; then
-            convert -size 192x192 xc:#4f46e5 assets/icon-192.png
-          fi
-          if [ ! -f assets/icon-512.png ]; then
-            convert -size 512x512 xc:#4f46e5 assets/icon-512.png
-          fi
+          python3 -c "
+          import struct, zlib
+def create_png(w, h, color):
+    def chunk(ctype, data):
+        c = ctype + data
+        return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c) & 0xffffffff)
+    raw = b''
+    for y in range(h):
+        raw += b'\x00' + bytes(color) * w
+    return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+open('android/app/src/main/res/drawable/ic_launcher.png', 'wb').write(create_png(192, 192, (79, 70, 229)))
+"
+          # PWA 图标
+          mkdir -p assets
+          python3 -c "
+import struct, zlib
+def create_png(w, h, color):
+    def chunk(ctype, data):
+        c = ctype + data
+        return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c) & 0xffffffff)
+    raw = b''
+    for y in range(h):
+        raw += b'\x00' + bytes(color) * w
+    return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+open('assets/icon-192.png', 'wb').write(create_png(192, 192, (79, 70, 229)))
+open('assets/icon-512.png', 'wb').write(create_png(512, 512, (79, 70, 229)))
+"
 
       - name: Copy web assets to Android assets
         run: |
@@ -57,7 +74,8 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug
+        run: ./gradlew assembleDebug
+        working-directory: android
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
