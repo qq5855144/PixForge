@@ -52,10 +52,8 @@ jobs:
         run: |
           mkdir -p android/app/src/main/assets
           cp -r index.html manifest.json assets/ android/app/src/main/assets/
-
-      - name: Generate Gradle Wrapper
-        run: gradle wrapper --distribution-type all
-        working-directory: android
+mkdir -p android/app/src/main/assets
+cp -r dist/* android/app/src/main/assets/
 
       - name: Generate debug keystore
         run: keytool -genkey -v -keystore android/app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Debug, OU=Dev, O=PixForge, L=Unknown, S=Unknown, C=US"
