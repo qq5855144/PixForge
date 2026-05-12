@@ -2,6 +2,15 @@ android {
     namespace 'com.pixforge.webview'
     compileSdk 34
 
+    signingConfigs {
+        debug {
+            storeFile file("${System.getProperty('user.home')}/.android/debug.keystore")
+            storePassword 'android'
+            keyAlias 'AndroidDebugKey'
+            keyPassword 'android'
+        }
+    }
+
     defaultConfig {
         applicationId 'com.pixforge.webview'
         minSdk 21
@@ -12,6 +21,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.debug
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
