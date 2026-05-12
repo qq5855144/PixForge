@@ -31,7 +31,6 @@ jobs:
           echo "/opt/gradle-8.2.1/bin" >> $GITHUB_PATH
 
       - name: Generate placeholder icons (PWA & Android)
-      - name: Generate placeholder icons (PWA & Android)
         run: |
           mkdir -p android/app/src/main/res/drawable
           mkdir -p assets
