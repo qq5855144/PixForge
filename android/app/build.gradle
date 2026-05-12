@@ -1,12 +1,9 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace 'com.pixforge.webview'
-    compileSdk 34
-
     signingConfigs {
         debug {
-            storeFile file("${System.getProperty('user.home')}/.android/debug.keystore")
+            storeFile file("debug.keystore")
             storePassword 'android'
             keyAlias 'AndroidDebugKey'
             keyPassword 'android'
@@ -22,10 +19,14 @@ android {
     }
 
     buildTypes {
-        release {
+        debug {
             signingConfig signingConfigs.debug
+        }
+        release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
         }
     }
 
