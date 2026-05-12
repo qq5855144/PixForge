@@ -24,11 +24,7 @@ jobs:
           api-level: '34'
           build-tools: '34.0.0'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '8.2.2'
-
+      - name: Generate placeholder icons (PWA & Android)
       - name: Generate placeholder icons (PWA & Android)
         run: |
           mkdir -p android/app/src/main/res/drawable
