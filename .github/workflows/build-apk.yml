@@ -65,7 +65,8 @@ jobs:
         run: keytool -genkey -v -keystore android/app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Debug, OU=Dev, O=PixForge, L=Unknown, S=Unknown, C=US"
 
       - name: Grant execute permission for gradlew
-      - name: Build debug APK
+        run: chmod +x android/gradlew
+
         run: ./gradlew assembleDebug
         working-directory: android
 
