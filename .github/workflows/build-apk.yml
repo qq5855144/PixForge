@@ -29,14 +29,29 @@ jobs:
         with:
           gradle-version: '8.2.2'
 
-      - name: Generate Gradle Wrapper
-        run: gradle wrapper --distribution-type all
-        working-directory: android
+      - name: Generate placeholder icons (if missing)
+        run: |
+          # 为 Android 生成启动图标
+          mkdir -p android/app/src/main/res/drawable
+          if [ ! -f android/app/src/main/res/drawable/ic_launcher.png ]; then
+            convert -size 48x48 xc:#4f46e5 android/app/src/main/res/drawable/ic_launcher.png
+          fi
+          # 为 PWA 生成清单图标
+          if [ ! -f assets/icon-192.png ]; then
+            convert -size 192x192 xc:#4f46e5 assets/icon-192.png
+          fi
+          if [ ! -f assets/icon-512.png ]; then
+            convert -size 512x512 xc:#4f46e5 assets/icon-512.png
+          fi
 
       - name: Copy web assets to Android assets
         run: |
           mkdir -p android/app/src/main/assets
           cp -r index.html manifest.json assets/ android/app/src/main/assets/
+
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper --distribution-type all
+        working-directory: android
 
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
