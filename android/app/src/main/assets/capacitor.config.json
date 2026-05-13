@@ -1,0 +1,11 @@
+{
+	"appId": "com.pixforge.app",
+	"appName": "PixForge",
+	"webDir": "dist",
+	"android": {
+		"allowMixedContent": true
+	},
+	"server": {
+		"cleartext": true
+	}
+}
