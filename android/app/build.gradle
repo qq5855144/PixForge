@@ -44,6 +44,13 @@ dependencies {
 
 apply from: 'capacitor.build.gradle'
 
+// Fix: Kotlin stdlib >= 1.8 merges jdk7/jdk8 into kotlin-stdlib.
+// Exclude old standalone kotlin-stdlib-jdk7/jdk8 pulled by cordova or other transitive deps.
+configurations.all {
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+}
+
 try {
     def servicesJSON = file('google-services.json')
     if (servicesJSON.text) {
