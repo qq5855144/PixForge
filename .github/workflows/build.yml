@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK & Deploy Pages
 
 on:
   push:
@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main, master]
   workflow_dispatch:
+
+# Grant GITHUB_TOKEN write access for Pages deployment
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build-android:
@@ -37,6 +43,12 @@ jobs:
       - name: Build web assets
         run: npm run build
 
+      - name: Upload web dist for Pages
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
       - name: Sync Capacitor
         run: npx cap sync android
 
@@ -60,3 +72,22 @@ jobs:
         with:
           name: pixforge-release-apk
           path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+  deploy-pages:
+    needs: build-android
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download web dist
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
