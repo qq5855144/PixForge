@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== CSS Variables for Theming ===== */
+
+/* Default (dark) */
+:root {
+  --bg-primary: #0f0f11;
+  --bg-secondary: #1a1a1e;
+  --bg-tertiary: #252529;
+  --bg-hover: #1d1d22;
+  --bg-card: #1a1a1e;
+  --text-primary: #f5f5f7;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --border-color: #2e2e33;
+  --border-hover: #4b4b50;
+  --accent-primary: #6366f1;
+  --accent-hover: #5558e0;
+  --accent-glow: rgba(99, 102, 241, 0.3);
+  --accent-light: rgba(99, 102, 241, 0.1);
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.1);
+  --cyan: #22d3ee;
+  --cyan-bg: rgba(34, 211, 238, 0.1);
+  --error: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.1);
+  --warning: #f59e0b;
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-float: 0 -4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-button: 0 0 20px rgba(99, 102, 241, 0.3);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --thumb-track: #252529;
+  --lightbox-bg: rgba(15, 15, 17, 0.92);
+  --lightbox-text: #f5f5f7;
+  --lightbox-text-secondary: rgba(245, 245, 247, 0.6);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f0f0f2;
+  --bg-hover: #ececee;
+  --bg-card: #ffffff;
+  --text-primary: #1a1a1e;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border-color: #e5e5e8;
+  --border-hover: #d1d1d6;
+  --accent-primary: #6366f1;
+  --accent-hover: #4f52d8;
+  --accent-glow: rgba(99, 102, 241, 0.2);
+  --accent-light: rgba(99, 102, 241, 0.08);
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.1);
+  --cyan: #0891b2;
+  --cyan-bg: rgba(8, 145, 178, 0.1);
+  --error: #dc2626;
+  --error-bg: rgba(220, 38, 38, 0.1);
+  --warning: #d97706;
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-float: 0 -4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-button: 0 0 20px rgba(99, 102, 241, 0.2);
+  --overlay: rgba(0, 0, 0, 0.3);
+  --thumb-track: #e5e5e8;
+  --lightbox-bg: rgba(255, 255, 255, 0.92);
+  --lightbox-text: #1a1a1e;
+  --lightbox-text-secondary: rgba(26, 26, 30, 0.5);
+}
+
+/* Dark theme (explicit) */
+[data-theme="dark"] {
+  --bg-primary: #0f0f11;
+  --bg-secondary: #1a1a1e;
+  --bg-tertiary: #252529;
+  --bg-hover: #1d1d22;
+  --bg-card: #1a1a1e;
+  --text-primary: #f5f5f7;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --border-color: #2e2e33;
+  --border-hover: #4b4b50;
+  --accent-primary: #6366f1;
+  --accent-hover: #5558e0;
+  --accent-glow: rgba(99, 102, 241, 0.3);
+  --accent-light: rgba(99, 102, 241, 0.1);
+  --success: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.1);
+  --cyan: #22d3ee;
+  --cyan-bg: rgba(34, 211, 238, 0.1);
+  --error: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.1);
+  --warning: #f59e0b;
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-float: 0 -4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-button: 0 0 20px rgba(99, 102, 241, 0.3);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --thumb-track: #252529;
+  --lightbox-bg: rgba(15, 15, 17, 0.92);
+  --lightbox-text: #f5f5f7;
+  --lightbox-text-secondary: rgba(245, 245, 247, 0.6);
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 6%;
+    --foreground: 240 10% 96%;
+    --card: 240 5% 11%;
+    --card-foreground: 240 10% 96%;
+    --popover: 240 5% 11%;
+    --popover-foreground: 240 10% 96%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 240 10% 96%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 240 10% 96%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 20%;
+    --input: 240 4% 20%;
+    --ring: 239 84% 67%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ===== Animations ===== */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ===== Slider Override ===== */
+[data-slot="slider-track"] {
+  background-color: var(--thumb-track) !important;
+}
+[data-slot="slider-range"] {
+  background-color: var(--accent-primary) !important;
+}
+[data-slot="slider-thumb"] {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+}
+
+/* ===== Sheet Overlay ===== */
+[data-slot="sheet-overlay"] {
+  background-color: var(--overlay) !important;
+}
+
+/* ===== Safe Area ===== */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ===== Number Input ===== */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
