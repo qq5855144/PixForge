@@ -1,73 +1,32 @@
-# React + TypeScript + Vite
+# PixForge
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+PixForge 是可以在浏览器和 Android 上使用的本地批量图片工作台。支持格式转换、目标体积压缩、裁剪、旋转、尺寸调整和 ZIP 导出。
 
-Currently, two official plugins are available:
+- JPG、PNG、WebP、GIF、AVIF、SVG 输出。WebP 取决于浏览器编码能力。位图转 SVG 会嵌入原图像素。
+- 透明裁剪建议输出 PNG、WebP 或 AVIF。动画可以保留原文件、重新导出为 GIF，或提取首帧。
+- 每个文件保留原图和可撤销的编辑参数。裁剪、旋转、缩放在导出时一次编码。JPEG 默认清除 EXIF，可按需保留。
+- Android 支持通过系统分享接收图片，通过系统文件选择器保存图片和 ZIP，或向其他应用分享结果。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 开发
 
-## React Compiler
+需要 Node.js 22 或更新版本。Android 构建还需要 JDK 21 和 Android SDK 35。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+npm ci
+npm run dev
+npm run lint
+npm run build
+npx playwright install chromium
+npm test
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+每次修改 Web 源码后，先构建并同步 Web 资源，再构建 APK。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+npm run build
+npx cap sync android
+cd android
+bash gradlew assembleDebug
 ```
+
+可体验 [PixForge 网页版](https://qq5855144.github.io/PixForge/)。
