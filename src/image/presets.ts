@@ -1,7 +1,7 @@
 import type { AppMode, Format, OutputSettings, Preset } from '@/types';
 import { OUTPUT_DEFAULTS } from './formats';
 
-export const MODE_LABELS: Record<AppMode, string> = { convert: '格式转换', compress: '压缩图片', crop: '裁剪尺寸' };
+export const MODE_LABELS: Record<AppMode, string> = { convert: '格式转换', compress: '批量压缩', crop: '图片裁剪' };
 
 export const BUILTIN_PRESETS: Preset[] = [
   { id: 'avatar', label: '头像 · 512 px', mode: 'crop',

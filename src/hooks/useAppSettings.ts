@@ -6,7 +6,7 @@ const STORAGE_KEY = 'pixforge_settings';
 const DEFAULT_SETTINGS: AppSettings = {
   outputNaming: 'original',
   renamePattern: 'processed',
-  themeMode: 'system',
+  themeMode: 'dark',
 };
 
 function loadSettings(): AppSettings {
