@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DragEvent, FormEvent } from 'react';
 import { Clipboard, Crop, Download, FolderOpen, Hexagon, ImagePlus, Minimize2,
-  Settings, Share2, Shuffle, Square, Trash2 } from 'lucide-react';
+  Settings, Share2, Shuffle, Square, Trash2, Upload } from 'lucide-react';
 import { FileList } from '@/components/FileList';
 import { Modal } from '@/components/Modal';
 import { OutputPanel } from '@/components/OutputPanel';
@@ -198,67 +198,56 @@ export default function App() {
     void process(mode, options, settings, !ready);
   }
 
-  const heading = items.length ? '文件队列' : '导入图片';
   const totalSize = items.reduce((total, item) => total + item.source.size, 0);
 
   return (
     <div className="app-shell">
       <header className="app-header">
         <div className="header-inner">
-          <div className="brand"><span className="brand-symbol"><Hexagon size={21} strokeWidth={2.3} /></span>PixForge</div>
+          <div className="brand"><Hexagon size={20} strokeWidth={2.2} />PixForge</div>
           <button type="button" className="icon-button" aria-label="设置" onClick={() => setShowSettings(true)}><Settings size={20} /></button>
         </div>
       </header>
-      <main className="workspace">
-        <nav className="mode-tabs" aria-label="图片工具">
-          {modes.map(({ id, icon: Icon }) => <button key={id} type="button" aria-pressed={id === mode} disabled={locked && mode !== id}
-            onClick={() => changeMode(id)}><Icon size={17} />{MODE_LABELS[id]}</button>)}
-        </nav>
-        <div className="workbench">
-          <section className="queue-panel"
-            data-dragging={dragOver || undefined} aria-label={heading}
-            onDragEnter={event => {
-              if (!event.dataTransfer.types.includes('Files')) return;
-              event.preventDefault();
-              dragDepth.current++;
-              setDragOver(true);
-            }}
-            onDragOver={event => {
-              if (!event.dataTransfer.types.includes('Files')) return;
-              event.preventDefault();
-              event.dataTransfer.dropEffect = 'copy';
-            }}
-            onDragLeave={event => {
-              if (!event.dataTransfer.types.includes('Files')) return;
-              if (--dragDepth.current <= 0) { dragDepth.current = 0; setDragOver(false); }
-            }}
-            onDrop={drop}>
-            <input ref={importing} type="file" multiple accept="image/*,.svg,.heic,.heif,.avif"
-              hidden onChange={event => {
-                importFiles(Array.from(event.target.files || []));
-                event.target.value = '';
-              }} />
-            {items.length ? <>
-              <div className="queue-header">
-                <div><h1>文件队列</h1><p>{items.length} 张 · {formatBytes(totalSize)}{eligible.length !== items.length && ` · 已选 ${eligible.length}`}</p></div>
-                <div className="queue-actions">
-                  <button className="button" onClick={() => importing.current?.click()}><ImagePlus size={17} />添加</button>
-                  <button className="icon-button" aria-label="粘贴图片" title="粘贴图片" onClick={() => void paste()}><Clipboard size={18} /></button>
-                  <button className="icon-button" aria-label="清空队列" title="清空队列" disabled={locked}
-                    onClick={() => setClearDialog(true)}><Trash2 size={17} /></button>
-                </div>
-              </div>
-              <FileList items={items} actions={rowActions} locked={locked} cropMode={mode === 'crop'} />
-            </> : <div className="empty-queue">
-              <div className="empty-icon"><ImagePlus size={28} /></div>
-              <h1>导入图片</h1>
-              <p>拖入、选择文件或粘贴图片。处理在本机完成。</p>
-              <div className="empty-actions">
-                <button className="primary" onClick={() => importing.current?.click()}><FolderOpen size={18} />选择图片</button>
-                <button className="button" onClick={() => void paste()}><Clipboard size={17} />粘贴</button>
-              </div>
-            </div>}
-          </section>
+      <main className="workspace" data-empty={!items.length || undefined}>
+        <section className="upload-zone" data-dragging={dragOver || undefined} aria-label="导入图片"
+          onDragEnter={event => {
+            if (!event.dataTransfer.types.includes('Files')) return;
+            event.preventDefault();
+            dragDepth.current++;
+            setDragOver(true);
+          }}
+          onDragOver={event => {
+            if (!event.dataTransfer.types.includes('Files')) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+          }}
+          onDragLeave={event => {
+            if (!event.dataTransfer.types.includes('Files')) return;
+            if (--dragDepth.current <= 0) { dragDepth.current = 0; setDragOver(false); }
+          }}
+          onDrop={drop}>
+          <input ref={importing} type="file" multiple accept="image/*,.svg,.heic,.heif,.avif"
+            hidden onChange={event => {
+              importFiles(Array.from(event.target.files || []));
+              event.target.value = '';
+            }} />
+          {items.length ? <div className="import-strip">
+            <button type="button" className="import-add" onClick={() => importing.current?.click()}>
+              <span className="import-icon"><ImagePlus size={19} /></span>继续添加图片
+            </button>
+            <button type="button" className="icon-button" aria-label="粘贴图片" title="粘贴图片"
+              onClick={() => void paste()}><Clipboard size={17} /></button>
+          </div> : <div className="empty-queue">
+            <span className="import-icon"><Upload size={23} /></span>
+            <h1>拖入图片，或选择文件</h1>
+            <p>支持 JPG、PNG、WebP、GIF、SVG、AVIF，图片在本机处理。</p>
+            <div className="empty-actions">
+              <button className="primary" onClick={() => importing.current?.click()}>选择图片</button>
+              <button className="button" onClick={() => void paste()}><Clipboard size={15} />粘贴</button>
+            </div>
+          </div>}
+        </section>
+        {items.length > 0 && <>
           <OutputPanel key={mode} webp={webp} mode={mode} options={options} onChange={changeOptions} locked={locked}
             presets={allPresets} activePreset={activePreset} onPreset={applyPreset}
             onSavePreset={() => { setPresetName(''); setPresetDialog(true); }}
@@ -268,37 +257,59 @@ export default function App() {
                 setNotice('已删除预设');
               }
             }} />
-        </div>
+          <section className="queue-panel" aria-labelledby="files-heading">
+            <div className="queue-header">
+              <div className="queue-summary">
+                <h2 id="files-heading">文件队列</h2>
+                <p>{items.length} 张 · {formatBytes(totalSize)}{eligible.length !== items.length && ` · 已选 ${eligible.length}`}</p>
+              </div>
+              <button className="icon-button" aria-label="清空队列" title="清空队列" disabled={locked}
+                onClick={() => setClearDialog(true)}><Trash2 size={17} /></button>
+            </div>
+            <FileList items={items} actions={rowActions} locked={locked} cropMode={mode === 'crop'} />
+          </section>
+        </>}
       </main>
-      {(items.length > 0 || notice) && <footer className="action-bar">
-        <div className="action-inner">
-          <div className="action-info" aria-live="polite">
-            {batch ? <div className="progress-info">
-              <span>处理中 {batch.current} / {batch.total} · {batch.progress}%</span>
-              <progress max="100" value={batch.progress} />
-            </div> : exportProgress !== undefined ? <div className="progress-info">
-              <span>{exportProgress < 100 ? `准备导出 · ${exportProgress}%` : '等待保存或分享'}</span>
-              <progress max="100" value={exportProgress} />
-            </div> : !validOptions(options) ? <span className="file-error">检查输出宽高或目标体积</span> :
-              <span>{notice || `已选 ${eligible.length} 张${completed.length ? ` · ${completed.length} 份可保存` : ''}${errors ? ` · ${errors} 张失败` : ''}`}</span>}
+      <footer className="workspace-dock">
+        {(items.length > 0 || notice) && <div className="action-bar">
+          <div className="action-inner">
+            <div className="action-info" aria-live="polite">
+              {batch ? <div className="progress-info">
+                <span>处理中 {batch.current} / {batch.total} · {batch.progress}%</span>
+                <progress max="100" value={batch.progress} />
+              </div> : exportProgress !== undefined ? <div className="progress-info">
+                <span>{exportProgress < 100 ? `准备导出 · ${exportProgress}%` : '等待保存或分享'}</span>
+                <progress max="100" value={exportProgress} />
+              </div> : !validOptions(options) ? <span className="file-error">检查输出宽高或目标体积</span> :
+                <span>{notice || `已选 ${eligible.length} 张${completed.length ? ` · ${completed.length} 份可保存` : ''}${errors ? ` · ${errors} 张失败` : ''}`}</span>}
+            </div>
+            <div className="action-buttons">
+              {batch ? <button className="button" onClick={() => { stop(); setNotice('已取消批量处理'); }}><Square size={15} />取消</button> :
+                items.length > 0 && <>
+                  {completed.length > 0 && <button className="button export-button" disabled={locked} onClick={() => void download(completed)}><Download size={17} />
+                    {androidApp ? '保存' : '下载'}{completed.length > 1 ? ` ${completed.length}` : ''}
+                  </button>}
+                  {completed.length > 0 && (androidApp || (completed.length === 1 && typeof navigator.share === 'function')) &&
+                    <button className="icon-button" disabled={locked} aria-label="分享结果" title="分享结果" onClick={() => void download(completed, true)}><Share2 size={17} /></button>}
+                  {completed.length > 1 && !androidApp && pickerAvailable &&
+                    <button className="icon-button" disabled={locked} aria-label="选择保存位置" title="选择保存位置" onClick={() => void download(completed, false, true)}><FolderOpen size={17} /></button>}
+                  <button className="primary" disabled={locked || !eligible.length || !validOptions(options)} onClick={run}>
+                    {ready ? (errors && eligible.every(item => item.status !== 'pending') ? '重试失败项' : '开始处理') : '重新处理'}
+                  </button>
+                </>}
+            </div>
           </div>
-          <div className="action-buttons">
-            {batch ? <button className="button" onClick={() => { stop(); setNotice('已取消批量处理'); }}><Square size={15} />取消</button> :
-              items.length > 0 && <>
-                {completed.length > 0 && <button className="button" disabled={locked} onClick={() => void download(completed)}><Download size={17} />
-                  {androidApp ? '保存' : '下载'}{completed.length > 1 ? ` ${completed.length}` : ''}
-                </button>}
-                {completed.length > 0 && (androidApp || (completed.length === 1 && typeof navigator.share === 'function')) &&
-                  <button className="icon-button" disabled={locked} aria-label="分享结果" title="分享结果" onClick={() => void download(completed, true)}><Share2 size={17} /></button>}
-                {completed.length > 1 && !androidApp && pickerAvailable &&
-                  <button className="icon-button" disabled={locked} aria-label="选择保存位置" title="选择保存位置" onClick={() => void download(completed, false, true)}><FolderOpen size={17} /></button>}
-                <button className="primary" disabled={locked || !eligible.length || !validOptions(options)} onClick={run}>
-                  {ready ? (errors && eligible.every(item => item.status !== 'pending') ? '重试失败项' : '开始处理') : '重新处理'}
-                </button>
-              </>}
-          </div>
-        </div>
-      </footer>}
+        </div>}
+        <nav className="mode-tabs" aria-label="图片工具">
+          {modes.map(({ id, icon: Icon }) => (
+            <button key={id} type="button" aria-pressed={id === mode} disabled={locked && mode !== id}
+              onClick={() => changeMode(id)}>
+              <Icon size={20} strokeWidth={id === mode ? 2.2 : 1.8} />
+              <span>{MODE_LABELS[id]}</span>
+            </button>
+          ))}
+        </nav>
+      </footer>
       {preview && <Suspense fallback={<span className="loading-indicator" role="status">正在打开预览…</span>}>
         <PreviewModal key={preview.id} item={preview} onClose={() => setPreviewId(undefined)}
           onNavigate={items.length > 1 ? direction => {

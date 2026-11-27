@@ -76,7 +76,7 @@ test('continues after appending images and retains both same-name ZIP entries', 
   const zip = await JSZip.loadAsync(result.data);
   expect(Object.keys(zip.files)).toEqual(['same.webp', 'same (2).webp']);
 
-  await page.getByRole('button', { name: '压缩图片', exact: true }).click();
+  await page.getByRole('button', { name: '批量压缩', exact: true }).click();
   await page.getByLabel('目标体积').fill('4');
   await process(page);
   const compressed = await download(page);
@@ -87,7 +87,7 @@ test('continues after appending images and retains both same-name ZIP entries', 
 test('applies rotation with a nondestructive crop and previews original and result', async ({ page }) => {
   await page.goto('/');
   await upload(page, [await sample(page)]);
-  await page.getByRole('button', { name: '裁剪尺寸', exact: true }).click();
+  await page.getByRole('button', { name: '图片裁剪', exact: true }).click();
   await page.getByRole('button', { name: '裁剪 sample.png' }).click();
   await page.getByRole('button', { name: '旋转', exact: true }).click();
   await expect(page.getByRole('button', { name: '应用', exact: true })).toBeEnabled();
@@ -109,6 +109,12 @@ test('keeps settings and the primary action in the initial mobile viewport', asy
   await upload(page, Array.from({ length: 100 }, (_, index) => ({ ...source, name: `${index}.png` })));
   const panel = page.getByRole('region', { name: '输出设置' });
   await expect(panel.or(page.getByRole('complementary', { name: '输出设置' }))).toBeInViewport();
+  await expect(page.getByRole('button', { name: '开始处理', exact: true })).toBeInViewport();
+  const dock = page.getByRole('navigation', { name: '图片工具' });
+  await expect(dock).toBeInViewport();
+  expect((await dock.boundingBox())?.y).toBeGreaterThan(500);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(dock).toBeInViewport();
   await expect(page.getByRole('button', { name: '开始处理', exact: true })).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(360);
 });
