@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { AppSettings, ThemeMode } from '@/types';
 
 const STORAGE_KEY = 'pixforge_settings';
@@ -6,15 +6,21 @@ const STORAGE_KEY = 'pixforge_settings';
 const DEFAULT_SETTINGS: AppSettings = {
   outputNaming: 'original',
   renamePattern: 'processed',
-  themeMode: 'dark',
+  themeMode: 'system',
 };
 
 function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw);
-      return { ...DEFAULT_SETTINGS, ...parsed };
+      const parsed = JSON.parse(raw) as Partial<AppSettings> | null;
+      if (!parsed) return { ...DEFAULT_SETTINGS };
+      return {
+        ...DEFAULT_SETTINGS,
+        ...(['light', 'dark', 'system'].includes(parsed.themeMode || '') && { themeMode: parsed.themeMode! }),
+        ...(['original', 'suffix', 'rename'].includes(parsed.outputNaming || '') && { outputNaming: parsed.outputNaming! }),
+        ...(typeof parsed.renamePattern === 'string' && { renamePattern: parsed.renamePattern.slice(0, 100) }),
+      };
     }
   } catch {
     // ignore
@@ -59,29 +65,19 @@ export function useAppSettings() {
     return () => mq.removeEventListener('change', handler);
   }, [settings.themeMode]);
 
+  useEffect(() => { saveSettings(settings); }, [settings]);
+
   const updateSettings = useCallback((partial: Partial<AppSettings>) => {
-    setSettings(prev => {
-      const next = { ...prev, ...partial };
-      saveSettings(next);
-      return next;
-    });
+    setSettings(prev => ({ ...prev, ...partial }));
   }, []);
 
   const resetSettings = useCallback(() => {
     setSettings({ ...DEFAULT_SETTINGS });
-    saveSettings({ ...DEFAULT_SETTINGS });
   }, []);
-
-  // Derive current effective theme
-  const effectiveTheme = useMemo<ThemeMode>(() => {
-    if (settings.themeMode !== 'system') return settings.themeMode;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }, [settings.themeMode]);
 
   return {
     settings,
     updateSettings,
     resetSettings,
-    effectiveTheme,
   };
 }

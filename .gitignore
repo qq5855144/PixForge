@@ -35,3 +35,10 @@ android/app/release/
 *.jks
 *.keystore
 key.properties
+
+# Browser test results
+/test-results/
+/playwright-report/
+
+# Capacitor synchronizes the production web build before Gradle runs
+/android/app/src/main/assets/public/

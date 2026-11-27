@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Setup Java
@@ -42,6 +42,15 @@ jobs:
 
       - name: Build web assets
         run: npm run build
+
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify image workflows
+        run: npm test
 
       - name: Upload web dist for Pages
         uses: actions/upload-artifact@v4
