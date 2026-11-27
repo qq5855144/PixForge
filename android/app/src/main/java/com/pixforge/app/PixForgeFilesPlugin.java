@@ -224,8 +224,8 @@ public class PixForgeFilesPlugin extends Plugin {
                 Intent send = new Intent(Intent.ACTION_SEND)
                     .setType(call.getString("mime", "application/octet-stream"))
                     .putExtra(Intent.EXTRA_STREAM, uri)
-                    .setClipData(ClipData.newRawUri(file.getName(), uri))
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                send.setClipData(ClipData.newRawUri(file.getName(), uri));
                 bridge.executeOnMainThread(() -> {
                     try {
                         getActivity().startActivity(Intent.createChooser(send, "分享文件"));
